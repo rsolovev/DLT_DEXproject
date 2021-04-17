@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Accounts</title>
+</head>
+
+<style type="text/css">
+
+    th:tr {
+        color: blue;
+
+    }
+
+    tr:nth-of-type(2n) {
+        border: 1px solid black;
+        background-color: rgba(150, 150, 150, 0.5);
+
+    }
+
+    td {
+        padding: 8px 8px;
+        border: 1px solid black;
+    }
+</style>
+
+<body>
+
+<table style="margin-left: 20px;">
+    <!-- Table headers -->
+    <th>
+        <tr style="color: green; ">
+            <td>Address</td>
+        </tr>
+    </th>
+
+    {% for addr in addresses %}
+
+        <tr>
+        <td>
+            <button type="button" onclick="window.location.href='{{ url_for( 'dashboard', account=addr)}}';">{{ addr }}</button>
+        </td>
+
+    {% endfor %}
+
+    </tr>
+
+</table>
+
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "account1": {
+    "address": "0xc25F9650C3547fd66B3f0665f68C2a9E8b22DF23",
+    "private_key": "05f59c7711f9c07d754563837ee95378323ea89aad5e23b72c216f8a22e2e409"
+  },
+  "account2": {
+    "address": "0x76AF5D41470eDE5Eb417c6ea846AaE6814d0b156",
+    "private_key": "bb2525d020d88030502a9fd1207bf7f4faba4e762d100c49e04d7ff6854412e6\n"
+  },
+  "account3": {
+    "address": "0x6a2416f4D96cE501CebB093E2779b8B6D4a5EAF9",
+    "private_key": "43ccf94b1d9acc68b8b21d45e88c5a16489dde8a2584f4f4872f619b49fbbe80"
+  },
+  "account4": {
+    "address": "0xc7D768AecCAc834FfbCFcba326A6db2eFC291F39",
+    "private_key": "ec27ee5a063e08c553ebd1872bc64bc13c40dd74938191d0c1278fbcb5e7ed8f"
+  },
+  "account5": {
+    "address": "0x935D87b2f8FefbB28df4a4Cab045450e67510a62",
+    "private_key": "85ea16f99379fae663dd2eaf7db1d7e7610ebca8e3493eaacf76ce64661e6a6e"
+  }
+}
