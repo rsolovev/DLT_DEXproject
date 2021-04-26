@@ -30,15 +30,22 @@
     <!-- Table headers -->
     <th>
         <tr style="color: green; ">
+            <td>Name</td>
             <td>Address</td>
         </tr>
     </th>
 
-    {% for addr in addresses %}
+    {% for name, addr in users.items() %}
 
         <tr>
         <td>
-            <button type="button" onclick="window.location.href='{{ url_for( 'dashboard', account=addr)}}';">{{ addr }}</button>
+            {{ name }}
+        </td>
+        <td>
+            {{ addr }}
+        </td>
+        <td>
+            <button type="button" onclick="window.location.href='{{ url_for( 'dashboard', account_address=addr)}}';">Login</button>
         </td>
 
     {% endfor %}
