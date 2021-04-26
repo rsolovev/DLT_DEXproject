@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+Hello, {{ name }} ({{ account_addr }})!
+<br>
+<button type="button" onclick="window.location.href='{{ url_for( 'create_wallet', account_address=account_addr)}}';">Create wallet</button>
+<button type="button" onclick="window.location.href='{{ url_for( 'check_wallet_eth_balance', account_address=account_addr)}}';">Check ETH balance on wallet</button>
+<button type="button" onclick="window.location.href='{{ url_for( 'deposit_eth_to_wallet', account_address=account_addr)}}';">Deposit ETH to wallet</button>
+<button type="button" onclick="window.location.href='{{ url_for( 'dashboard', account_address=account_addr)}}';">Back to Dashboard</button>
+</body>
+</html>

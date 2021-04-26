@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+Hello, ({{ account_addr }}), message from DEX: <br>
+Your ETH wallet balance is {{ message }}
+<br>
+<button type="button" onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr)}}';">Back to wallet dashboard</button>
+<button type="button" onclick="window.location.href='{{ url_for( 'dashboard', account_address=account_addr)}}';">Back to Dashboard</button>
+</body>
+</html>

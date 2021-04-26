@@ -1,47 +1,7 @@
-from web3 import Web3
-import json
 from flask import Flask, render_template
+from utils import *
 
 app = Flask(__name__)
-
-
-def get_w3():
-    w3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
-    return w3
-
-
-def get_accounts():
-    with open('data/accounts.json') as accounts_file:
-        accounts = json.load(accounts_file)
-    return accounts
-
-
-def get_w3_account(account_addr):
-    w3 = get_w3()
-    accounts = get_accounts()
-    priv_key = ""
-    for acc in accounts.items():
-        if acc[1]["address"] == account_addr:
-            priv_key = acc[1]["private_key"]
-    account = w3.eth.account.privateKeyToAccount(priv_key)
-
-    return account
-
-
-def get_name_from_w3account(w3_account):
-    accounts = get_accounts()
-    name = ""
-    for acc in accounts.items():
-        if acc[1]["address"] == w3_account.address:
-            name = acc[0]
-    return name
-
-
-def get_balances(w3_account):
-    w3 = get_w3()
-    balances = {"ETH": int(w3.eth.getBalance(w3_account.address)) / 10 ** 18}
-
-    return balances
 
 
 @app.route('/')
@@ -59,3 +19,50 @@ def dashboard(account_address):
     name = get_name_from_w3account(w3_account)
     balances = get_balances(w3_account)
     return render_template('dashboard.html', account_addr=w3_account.address, balances=balances, name=name)
+
+
+@app.route('/<account_address>/wallet')
+def wallet_dashboard(account_address):
+    w3_account = get_w3_account(account_address)
+    name = get_name_from_w3account(w3_account)
+    return render_template('wallet_dashboard.html', account_addr=w3_account.address, name=name)
+
+
+@app.route('/<account_address>/wallet/create_wallet')
+def create_wallet(account_address):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("wallet")
+    contract = w3.eth.contract(address=address, abi=abi)
+    tx_hash = contract.functions.create_wallet().transact({'from': w3_account.address})
+    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    if tx_receipt['status'] == 1:
+        message = str(f'{tx_hash.hex()} confirmed\n') + \
+                  "deployed at block: " + str(tx_receipt['blockNumber'])
+    else:
+        message = "ERROR"
+    return render_template('create_wallet.html', message=message, account_addr=account_address)
+
+
+@app.route('/<account_address>/wallet/eth_balance')
+def check_wallet_eth_balance(account_address):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("wallet")
+    contract = w3.eth.contract(address=address, abi=abi)
+    eth_balance = contract.functions.eth_balanceOf(w3_account.address).call({'from': w3_account.address})
+    return render_template('wallet_eth_balance.html', message=eth_balance, account_addr=account_address)
+
+
+# TODO: deposit template, dex call
+@app.route('/<account_address>/wallet/deposit_eth')
+def deposit_eth_to_wallet(account_address):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("wallet")
+    contract = w3.eth.contract(address=address, abi=abi)
+
+    pass

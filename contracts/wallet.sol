@@ -1,6 +1,6 @@
 pragma solidity ^0.6.0;
 
-import "contracts/erc20.sol";
+import "./erc20.sol";
 
 contract wallet {
     

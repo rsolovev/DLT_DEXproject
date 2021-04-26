@@ -47,6 +47,7 @@ Hello, {{ name }} ({{ account_addr }})! Your ETH and coins balances are:
     </tr>
 
 </table>
+<button type="button" onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr)}}';">Wallet Dashboard</button>
 <button type="button" onclick="window.location.href='{{ url_for( 'select_account') }}';">Back to accounts</button>
 </body>
 </html>
