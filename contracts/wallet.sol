@@ -18,6 +18,9 @@ contract wallet {
     
     mapping (address => userWallet) wallets;
     
+    constructor() public {
+    }
+    
     function createToken (uint256 total, string memory name, string memory symbol, uint8 decimals) public {
         require (wallets[msg.sender].valid, "You should create wallet before usage");
         ERC20 c = new ERC20(total, name, symbol, decimals, msg.sender);
@@ -74,5 +77,10 @@ contract wallet {
         require (wallets[msg.sender].valid, "You should create wallet before usage");
         wallets[msg.sender].eth_balance.sub(amount);
         wallets[receiver].eth_balance.add(amount);
+    }
+    
+    function get_symbol (address token) public view returns(string memory){
+        ERC20 c = ERC20(token);
+        return c.symbol();
     }
 }
