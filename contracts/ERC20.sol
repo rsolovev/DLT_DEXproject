@@ -1,10 +1,12 @@
 pragma solidity ^0.6.0;
 
+import "./SafeMath.sol";
+
 contract ERC20 {
     string public name;
     string public symbol;
-    uint8 public decimals;  
-    
+    uint8 public decimals;
+
     address public owner_;
     address public baseAddress;
 
@@ -15,13 +17,13 @@ contract ERC20 {
     mapping(address => uint256) public balances;
 
     mapping(address => mapping (address => uint256)) allowed;
-    
+
     uint256 totalSupply_;
 
     using SafeMath for uint256;
 
 
-    constructor(uint256 total, string memory _name,string memory _symbol, uint8 _decimals, address _owner) public {  
+    constructor(uint256 total, string memory _name,string memory _symbol, uint8 _decimals, address _owner) public {
     	totalSupply_ = total;
     	balances[_owner] = totalSupply_;
     	name =  _name;
@@ -34,7 +36,7 @@ contract ERC20 {
     function totalSupply() public view returns (uint256) {
 	    return totalSupply_;
     }
-    
+
     function balanceOf(address tokenOwner) public view returns (uint) {
         return balances[tokenOwner];
     }
@@ -58,26 +60,13 @@ contract ERC20 {
     }
 
     function transferFrom(address owner, address buyer, uint numTokens) public returns (bool) {
-        require(numTokens <= balances[owner]);    
+        require(numTokens <= balances[owner]);
         require(numTokens <= allowed[owner][msg.sender]);
-    
+
         balances[owner] = balances[owner].sub(numTokens);
         allowed[owner][msg.sender] = allowed[owner][msg.sender].sub(numTokens);
         balances[buyer] = balances[buyer].add(numTokens);
         emit Transfer(owner, buyer, numTokens);
         return true;
-    }
-}
-
-library SafeMath { 
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-      assert(b <= a);
-      return a - b;
-    }
-    
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-      uint256 c = a + b;
-      assert(c >= a);
-      return c;
     }
 }
