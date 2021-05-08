@@ -17,16 +17,16 @@ contract Wallet {
         bool valid;
     }
 
-    mapping (address => userWallet) wallets;
+    mapping (address => userWallet) public wallets;
 
     constructor() public {
     }
 
-    function createToken (address user, uint256 total, string memory name, string memory symbol, uint8 decimals) public {
+    function createToken (address user, uint256 total, string memory name, string memory symbol, uint8 decimals) public returns(address){
         require (wallets[user].valid, "You should create wallet before usage");
         ERC20 c = new ERC20(total, name, symbol, decimals, user);
         wallets[user].balances[address(c)] = total;
-
+        return address(c);
     }
 
     function create_wallet (address user) public {
@@ -76,6 +76,12 @@ contract Wallet {
         require (wallets[user].valid, "You should create wallet before usage");
         wallets[user].eth_balance.sub(amount);
         wallets[receiver].eth_balance.add(amount);
+    }
+    
+    function sub_eth (address user, uint amount) public view {
+        require (wallets[user].valid, "You should create wallet before usage");
+        require (wallets[user].eth_balance >= amount);
+        wallets[user].eth_balance.sub(amount);
     }
 
     function get_symbol (address token) public view returns(string memory){
