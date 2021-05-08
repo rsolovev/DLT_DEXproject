@@ -6,31 +6,32 @@
 </head>
 <style type="text/css">
 
-    th:tr{
+    th:tr {
         color: blue;
 
     }
-    tr:nth-of-type(2n){
+
+    tr:nth-of-type(2n) {
         border: 1px solid black;
         background-color: rgba(150, 150, 150, 0.5);
 
     }
 
-    td{
+    td {
         padding: 8px 8px;
         border: 1px solid black;
     }
 </style>
 <body>
-Hello, {{ name }} ({{ account_addr }})! Your ETH and coins balances are:
+Hello, {{ name }} ({{ account_addr }})! Your ETH account balance is:
 <br>
 <table style="margin-left: 20px;">
-<!-- Table headers -->
+    <!-- Table headers -->
     <th>
         <tr style="color: green; ">
-        <td>Ticker</td>
-        <td>Balance</td>
-</tr>
+            <td>Ticker</td>
+            <td>Balance</td>
+        </tr>
     </th>
 
     {% for key, value in balances.items() %}
@@ -47,7 +48,10 @@ Hello, {{ name }} ({{ account_addr }})! Your ETH and coins balances are:
     </tr>
 
 </table>
-<button type="button" onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr)}}';">Wallet Dashboard</button>
+<button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr) }}';">Wallet
+    Dashboard
+</button>
 <button type="button" onclick="window.location.href='{{ url_for( 'select_account') }}';">Back to accounts</button>
 </body>
 </html>
