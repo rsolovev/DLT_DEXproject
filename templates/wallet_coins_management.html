@@ -5,9 +5,12 @@
     <title>Dashboard</title>
 </head>
 <body>
-Hello, ({{ account_addr }}), message from DEX: <br>
-{{ message }}
-<br>
+Hello, ({{ account_addr }})
+<br><br>
+<button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_create_token', account_address=account_addr) }}';">Create Token
+</button>
+<br><br><br>
 <button type="button"
         onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr) }}';">Back to
     wallet dashboard
