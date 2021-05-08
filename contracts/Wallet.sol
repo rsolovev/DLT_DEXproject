@@ -22,12 +22,19 @@ contract Wallet {
 
     constructor() public {
     }
+    
+    function toString(address x) public returns (string memory) {
+        bytes memory b = new bytes(20);
+        for (uint i = 0; i < 20; i++)
+            b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
+        return string(b);
+    }
 
-    function createToken (address user, uint256 total, string memory name, string memory symbol, uint8 decimals) public returns(address){
+    function createToken (address user, uint256 total, string memory name, string memory symbol, uint8 decimals) public returns(string memory){
         require (wallets[user].valid, "You should create wallet before usage");
         ERC20 c = new ERC20(total, name, symbol, decimals, user);
         wallets[user].balances[address(c)] = total;
-        return address(c);
+        return toString(address(c));
     }
 
     function create_wallet (address user) public {
@@ -83,6 +90,22 @@ contract Wallet {
         require (wallets[user].valid, "You should create wallet before usage");
         require (wallets[user].eth_balance >= amount);
         wallets[user].eth_balance = wallets[user].eth_balance.sub(amount);
+    }
+    
+    function add_eth (address user, uint amount) public {
+        require (wallets[user].valid, "You should create wallet before usage");
+        wallets[user].eth_balance = wallets[user].eth_balance.add(amount);
+    }
+    
+    function sub_token_balance (address tokenOwner, address token, uint amount) public {
+        require (wallets[tokenOwner].valid, "You should create wallet before usage");
+        require (wallets[tokenOwner].balances[token] >= amount);
+        wallets[tokenOwner].balances[token] = wallets[tokenOwner].balances[token].sub(amount);
+    }
+    
+    function add_token_balance (address tokenOwner, address token, uint amount) public {
+        require (wallets[tokenOwner].valid, "You should create wallet before usage");
+        wallets[tokenOwner].balances[token] = wallets[tokenOwner].balances[token].add(amount);
     }
 
     function get_symbol (address token) public view returns(string memory) {
