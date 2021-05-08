@@ -1,6 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "./ERC20.sol";
+import "./SafeMath.sol";
 
 contract Wallet {
 
@@ -35,14 +36,14 @@ contract Wallet {
 
     function deposit_eth (address user) public payable {
         require (wallets[user].valid, "You should create wallet before usage");
-        wallets[user].eth_balance.add(msg.value);
+        wallets[user].eth_balance = wallets[user].eth_balance.add(msg.value);
         ethDeposit(user, msg.value);
     }
 
     function withdraw (address payable user, uint256 amount) public {
         require (wallets[user].valid, "You should create wallet before usage");
         require (amount <= wallets[user].eth_balance, "You don't enough balance to withdraw");
-        wallets[user].eth_balance.sub(amount);
+        wallets[user].eth_balance = wallets[user].eth_balance.sub(amount);
         user.transfer(amount);
         ethWithdraw(user, amount);
     }
@@ -72,19 +73,19 @@ contract Wallet {
         wallets[user].balances[token_addr] = c.balances(user);
     }
 
-    function send_eth (address user, address receiver, uint256 amount) public view {
+    function send_eth (address user, address receiver, uint256 amount) public {
         require (wallets[user].valid, "You should create wallet before usage");
-        wallets[user].eth_balance.sub(amount);
-        wallets[receiver].eth_balance.add(amount);
+        wallets[user].eth_balance = wallets[user].eth_balance.sub(amount);
+        wallets[receiver].eth_balance = wallets[receiver].eth_balance.add(amount);
     }
     
-    function sub_eth (address user, uint amount) public view {
+    function sub_eth (address user, uint amount) public {
         require (wallets[user].valid, "You should create wallet before usage");
         require (wallets[user].eth_balance >= amount);
-        wallets[user].eth_balance.sub(amount);
+        wallets[user].eth_balance = wallets[user].eth_balance.sub(amount);
     }
 
-    function get_symbol (address token) public view returns(string memory){
+    function get_symbol (address token) public view returns(string memory) {
         ERC20 c = ERC20(token);
         return c.symbol();
     }
