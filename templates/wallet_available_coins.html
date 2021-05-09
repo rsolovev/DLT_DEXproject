@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<style type="text/css">
+
+    th:tr {
+        color: blue;
+
+    }
+
+    tr:nth-of-type(2n) {
+        border: 1px solid black;
+        background-color: rgba(150, 150, 150, 0.5);
+
+    }
+
+    td {
+        padding: 8px 8px;
+        border: 1px solid black;
+    }
+</style>
+<body>
+Hello, ({{ account_addr }})! List of available coins:
+<br>
+<table style="margin-left: 20px;">
+    <!-- Table headers -->
+    <th>
+        <tr style="color: green; ">
+            <td>Ticker</td>
+            <td>Address</td>
+            <td>Your Balance</td>
+        </tr>
+    </th>
+
+    {% for key, value in coins.items() %}
+
+        <tr>
+        <td>
+            {{ key }}
+        </td>
+        <td>
+            {{ value }}
+        </td>
+        <td>
+            {{ balances[loop.index - 1] }}
+        </td>
+    {% endfor %}
+    </tr>
+
+</table>
+<button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr) }}';">Wallet
+    Dashboard
+</button>
+</body>
+</html>

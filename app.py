@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request
 from utils import *
 
@@ -78,11 +79,32 @@ def wallet_eth_management(account_address):
                            message=message)
 
 
+@app.route('/<account_address>/wallet/eth_management/send_eth', methods=['GET', 'POST'])
+def wallet_send_eth(account_address):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("wallet")
+    contract = w3.eth.contract(address=address, abi=abi)
+    message = ''
+    if request.method == "POST":
+        receiver = request.form['rec']
+        amount = request.form['amo']
+        try:
+            tx_hash = contract.functions.send_eth(w3_account.address, receiver, int(amount) * 10 ** 18).transact(
+                {'from': w3_account.address})
+            tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+        except Exception as e:
+            message = e
+    return render_template('wallet_send_eth.html', account_addr=account_address, message=message)
+
+
 @app.route('/<account_address>/wallet/coins_management', methods=['GET', 'POST'])
 def wallet_coins_management(account_address):
     return render_template('wallet_coins_management.html', account_addr=account_address)
 
 
+# TODO: NOT FIXED
 @app.route('/<account_address>/wallet/coins_management/create_token', methods=['GET', 'POST'])
 def wallet_create_token(account_address):
     w3 = get_w3()
@@ -99,5 +121,27 @@ def wallet_create_token(account_address):
                                                        int(decimals)).transact(
             {'from': w3_account.address})
         tx_receipt = w3.eth.waitForTransactionReceipt(token_address)
-        print(token_address)
+
+        if os.path.isfile('data/tokens.json'):
+            with open('data/tokens.json') as db_file:
+                db = json.loads(db_file.read())
+        db[symbol] = token_address
+        with open('data/tokens.json', 'w') as outfile:
+            json.dump(db, outfile)
     return render_template('wallet_create_coin.html', account_addr=account_address)
+
+
+@app.route('/<account_address>/wallet/coins_management/available_coins', methods=['GET', 'POST'])
+def wallet_available_coins(account_address):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("wallet")
+    contract = w3.eth.contract(address=address, abi=abi)
+    coins = get_coins()
+    balances = []
+    for sym, tok_address in coins.items():
+        token_balance = contract.functions.token_balanceOf(w3_account.address, tok_address).call(
+            {'from': w3_account.address})
+        balances.append(token_balance)
+    return render_template('wallet_available_coins.html', account_addr=account_address, coins=coins, balances=balances)
