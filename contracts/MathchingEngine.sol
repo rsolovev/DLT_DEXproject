@@ -93,7 +93,7 @@ contract MatchingEngine {
     function storeBuyOrder (address user, address token, uint price, uint amount) public {
         OrderBook storage tokenOrder = tokenBooks[token];
         tokenOrder.buyOffers[price].numOfOffers = tokenOrder.buyOffers[price].numOfOffers.add(1);
-        tokenOrder.buyOffers[price].offers[tokenOrder.buyCount] = Offer(amount, user);
+        tokenOrder.buyOffers[price].offers[tokenOrder.buyOffers[price].numOfOffers] = Offer(amount, user);
         if (tokenOrder.buyOffers[price].numOfOffers == 1) {
             tokenOrder.buyOffers[price].firstOffer = 1;
             tokenOrder.buyCount = tokenOrder.buyCount.add(1);
@@ -185,42 +185,42 @@ contract MatchingEngine {
     
     function storeSellOrder (address user, address token, uint price, uint amount) public {
         OrderBook storage tokenOrder = tokenBooks[token];
-        tokenOrder.buyOffers[price].numOfOffers = tokenOrder.buyOffers[price].numOfOffers.add(1);
-        tokenOrder.buyOffers[price].offers[tokenOrder.buyCount] = Offer(amount, user);
-        if (tokenOrder.buyOffers[price].numOfOffers == 1) {
-            tokenOrder.buyOffers[price].firstOffer = 1;
-            tokenOrder.buyCount = tokenOrder.buyCount.add(1);
-            uint currPrice = tokenOrder.maxBuyPrice;
-            uint minPrice = tokenOrder.minBuyPrice;
+        tokenOrder.sellOffers[price].numOfOffers = tokenOrder.sellOffers[price].numOfOffers.add(1);
+        tokenOrder.sellOffers[price].offers[tokenOrder.sellOffers[price].numOfOffers] = Offer(amount, user);
+        if (tokenOrder.sellOffers[price].numOfOffers == 1) {
+            tokenOrder.sellOffers[price].firstOffer = 1;
+            tokenOrder.sellCount = tokenOrder.sellCount.add(1);
+            uint currPrice = tokenOrder.minSellPrice;
+            uint maxPrice = tokenOrder.maxSellPrice;
             
-            if (minPrice == 0 || minPrice >= price) {
+            if (maxPrice == 0 || maxPrice <= price) {
                 if (currPrice == 0 ) {
-                    tokenOrder.maxBuyPrice = price;
-                    tokenOrder.buyOffers[price].nextPrice = price;
-                    tokenOrder.buyOffers[price].prevPrice = 0;
+                    tokenOrder.minSellPrice = price;
+                    tokenOrder.sellOffers[price].nextPrice = 0;
+                    tokenOrder.sellOffers[price].prevPrice = 0;
                 } else {
-                    tokenOrder.buyOffers[minPrice].prevPrice = price;
-                    tokenOrder.buyOffers[price].nextPrice = minPrice;
-                    tokenOrder.buyOffers[price].prevPrice = 0;
+                    tokenOrder.sellOffers[maxPrice].nextPrice = price;
+                    tokenOrder.sellOffers[price].prevPrice = maxPrice;
+                    tokenOrder.sellOffers[price].nextPrice = price;
                 }
-                tokenOrder.minBuyPrice = price;
-            } else if (currPrice <= price) {
-                tokenOrder.buyOffers[currPrice].nextPrice = price;
-                tokenOrder.buyOffers[price].nextPrice = price;
-                tokenOrder.buyOffers[price].prevPrice = currPrice;
-                tokenOrder.maxBuyPrice = price;
+                tokenOrder.maxSellPrice = price;
+            } else if (currPrice >= price) {
+                tokenOrder.sellOffers[currPrice].prevPrice = price;
+                tokenOrder.sellOffers[price].nextPrice = currPrice;
+                tokenOrder.sellOffers[price].prevPrice = 0;
+                tokenOrder.minSellPrice = price;
             } else {
-                uint sellPrice = tokenOrder.maxBuyPrice;
+                uint sellPrice = tokenOrder.minSellPrice;
                 bool done = false;
                 while (sellPrice > 0 && !done) {
-                    if (sellPrice <= price && price <= tokenOrder.buyOffers[sellPrice].nextPrice) {
-                        tokenOrder.buyOffers[price].prevPrice = sellPrice;
-                        tokenOrder.buyOffers[price].nextPrice = tokenOrder.buyOffers[sellPrice].nextPrice;
-                        tokenOrder.buyOffers[tokenOrder.buyOffers[sellPrice].nextPrice].prevPrice = price;
-                        tokenOrder.buyOffers[sellPrice].nextPrice = price;
+                    if (sellPrice <= price && price <= tokenOrder.sellOffers[sellPrice].nextPrice) {
+                        tokenOrder.sellOffers[price].prevPrice = sellPrice;
+                        tokenOrder.sellOffers[price].nextPrice = tokenOrder.sellOffers[sellPrice].nextPrice;
+                        tokenOrder.sellOffers[tokenOrder.sellOffers[sellPrice].nextPrice].prevPrice = price;
+                        tokenOrder.sellOffers[sellPrice].nextPrice = price;
                         done = true;
                     }
-                    sellPrice = tokenOrder.buyOffers[sellPrice].prevPrice;
+                    sellPrice = tokenOrder.sellOffers[sellPrice].nextPrice;
                 }
             }
         }
