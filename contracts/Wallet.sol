@@ -108,4 +108,8 @@ contract Wallet {
         ERC20 c = ERC20(token);
         return c.symbol();
     }
+    
+    function getAddr () public view returns(address) {
+        return tokenAddr;
+    }
 }
