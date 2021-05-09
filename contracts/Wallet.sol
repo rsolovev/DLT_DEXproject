@@ -22,19 +22,12 @@ contract Wallet {
 
     constructor() public {
     }
-    
-    function toString(address x) public returns (string memory) {
-        bytes memory b = new bytes(20);
-        for (uint i = 0; i < 20; i++)
-            b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
-        return string(b);
-    }
 
-    function createToken (address user, uint256 total, string memory name, string memory symbol, uint8 decimals) public returns(string memory){
+    function createToken (address user, uint256 total, string memory name, string memory symbol, uint8 decimals) public returns(address){
         require (wallets[user].valid, "You should create wallet before usage");
         ERC20 c = new ERC20(total, name, symbol, decimals, user);
         wallets[user].balances[address(c)] = total;
-        return toString(address(c));
+        return c.baseAddress();
     }
 
     function create_wallet (address user) public {
