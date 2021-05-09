@@ -11,6 +11,7 @@ contract Wallet {
 
     event ethDeposit (address indexed account, uint256 amount);
     event ethWithdraw (address indexed account, uint256 amount);
+    event tokenCreation (address indexed account, address indexed token, string name);
 
     struct userWallet {
         mapping(address => uint256) balances;
@@ -23,11 +24,11 @@ contract Wallet {
     constructor() public {
     }
 
-    function createToken (address user, uint256 total, string memory name, string memory symbol, uint8 decimals) public returns(address){
+    function createToken (address user, uint256 total, string memory name, string memory symbol, uint8 decimals) public {
         require (wallets[user].valid, "You should create wallet before usage");
         ERC20 c = new ERC20(total, name, symbol, decimals, user);
         wallets[user].balances[address(c)] = total;
-        return c.baseAddress();
+        tokenCreation(user, c.baseAddress(), name);
     }
 
     function create_wallet (address user) public {
