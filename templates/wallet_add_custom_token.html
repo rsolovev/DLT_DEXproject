@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+Hello, ({{ account_addr }}) <br><br>
+You can add custom token by address to our system: <br>
+<form method="POST">
+    <label>
+        <input name="add"> Token address
+    </label><br>
+    <label>
+        <input name="tic"> Token symbol
+    </label><br>
+    <input type="submit" value="Submit">
+</form>
+<br>
+{{ message }}
+<br><br><br>
+<button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr) }}';">Back to
+    wallet dashboard
+</button>
+<button type="button" onclick="window.location.href='{{ url_for( 'dashboard', account_address=account_addr) }}';">Back
+    to Dashboard
+</button>
+</body>
+</html>

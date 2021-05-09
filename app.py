@@ -63,7 +63,7 @@ def wallet_eth_management(account_address):
             eth = request.form['with']
         else:
             eth = 0
-        value = w3.toWei(int(eth), 'ether')
+        value = w3.toWei(float(eth), 'ether')
         if request.form['dep'] != '':
             tx_hash = contract.functions.deposit_eth(w3_account.address).transact(
                 {'from': w3_account.address, 'value': value})
@@ -91,7 +91,7 @@ def wallet_send_eth(account_address):
         receiver = request.form['rec']
         amount = request.form['amo']
         try:
-            tx_hash = contract.functions.send_eth(w3_account.address, receiver, int(amount) * 10 ** 18).transact(
+            tx_hash = contract.functions.send_eth(w3_account.address, receiver, int(float(amount) * 10 ** 18)).transact(
                 {'from': w3_account.address})
             tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
         except Exception as e:
@@ -104,7 +104,6 @@ def wallet_coins_management(account_address):
     return render_template('wallet_coins_management.html', account_addr=account_address)
 
 
-# TODO: NOT FIXED
 @app.route('/<account_address>/wallet/coins_management/create_token', methods=['GET', 'POST'])
 def wallet_create_token(account_address):
     w3 = get_w3()
@@ -117,15 +116,16 @@ def wallet_create_token(account_address):
         name = request.form['name']
         symbol = request.form['sym']
         decimals = request.form['dec']
-        token_address = contract.functions.createToken(w3_account.address, int(total_supply), name, symbol,
-                                                       int(decimals)).transact(
+        tx_hash = contract.functions.createToken(w3_account.address, int(total_supply), name, symbol,
+                                                 int(decimals)).transact(
             {'from': w3_account.address})
-        tx_receipt = w3.eth.waitForTransactionReceipt(token_address)
+        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
+        token_addr = contract.functions.getAddr().call({'from': w3_account.address})
         if os.path.isfile('data/tokens.json'):
             with open('data/tokens.json') as db_file:
                 db = json.loads(db_file.read())
-        db[symbol] = token_address
+        db[symbol] = token_addr
         with open('data/tokens.json', 'w') as outfile:
             json.dump(db, outfile)
     return render_template('wallet_create_coin.html', account_addr=account_address)
@@ -145,3 +145,61 @@ def wallet_available_coins(account_address):
             {'from': w3_account.address})
         balances.append(token_balance)
     return render_template('wallet_available_coins.html', account_addr=account_address, coins=coins, balances=balances)
+
+
+@app.route('/<account_address>/wallet/coins_management/add_custom_token', methods=['GET', 'POST'])
+def wallet_add_token(account_address):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("wallet")
+    contract = w3.eth.contract(address=address, abi=abi)
+    message = ''
+    if request.method == "POST":
+        try:
+            token_addr = request.form['add']
+            tx_hash = contract.functions.add_token(w3_account.address, token_addr).transact(
+                {'from': w3_account.address})
+            tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+            if tx_receipt['status'] == 1:
+                message = str(f'{tx_hash.hex()} confirmed\n') + \
+                          "deployed at block: " + str(tx_receipt['blockNumber'])
+            else:
+                message = "ERROR"
+
+            if os.path.isfile('data/tokens.json'):
+                with open('data/tokens.json') as db_file:
+                    db = json.loads(db_file.read())
+            db[request.form['tic']] = token_addr
+            with open('data/tokens.json', 'w') as outfile:
+                json.dump(db, outfile)
+        except Exception as e:
+            message = e
+
+    return render_template('wallet_add_custom_token.html', account_addr=account_address, message=message)
+
+
+@app.route('/<account_address>/wallet/coins_management/send_token', methods=['GET', 'POST'])
+def wallet_send_token(account_address):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("wallet")
+    contract = w3.eth.contract(address=address, abi=abi)
+    message = ''
+    if request.method == "POST":
+        # try:
+        receiver = request.form['rec']
+        amount = request.form['amo']
+        if os.path.isfile('data/tokens.json'):
+            with open('data/tokens.json') as db_file:
+                db = json.loads(db_file.read())
+        token_addr = db[request.form['tic']]
+
+        tx_hash = contract.functions.send_token(w3_account.address, receiver, token_addr,
+                                                int(amount)).transact(
+            {'from': w3_account.address})
+        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+        # except Exception as e:
+        #    message = e
+    return render_template('wallet_send_token.html', account_addr=account_address, message=message)

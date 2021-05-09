@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+Hello, ({{ account_addr }}) <br><br>
+You can send coins to other user's wallet: <br>
+<form method="POST">
+    <label>
+        <input name="tic"> Token symbol
+    </label>
+    <br>
+    <label>
+        <input name="rec"> Receiver
+    </label>
+    <br>
+    <label>
+        <input name="amo"> Amount
+    </label>
+    <br>
+    <input type="submit" value="Send tokens">
+</form>
+<br>
+{{ message }}
+<br><br><br>
+<button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr) }}';">Back to
+    wallet dashboard
+</button>
+<button type="button" onclick="window.location.href='{{ url_for( 'dashboard', account_address=account_addr) }}';">Back
+    to Dashboard
+</button>
+</body>
+</html>

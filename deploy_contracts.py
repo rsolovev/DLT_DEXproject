@@ -38,13 +38,6 @@ def deploy(conractName):
     with open('data/database.json', 'w') as outfile:
         json.dump(db, outfile)
 
-    if conractName == "erc20":
-        if os.path.isfile('data/tokens.json'):
-            with open('data/tokens.json') as db_file:
-                db = json.loads(db_file.read())
-        db['ABB'] = tx_receipt['contractAddress']
-        with open('data/tokens.json', 'w') as outfile:
-            json.dump(db, outfile)
 
 
 def deploy_all():

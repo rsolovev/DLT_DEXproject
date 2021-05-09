@@ -11,7 +11,13 @@ Hello, ({{ account_addr }})
         onclick="window.location.href='{{ url_for( 'wallet_create_token', account_address=account_addr) }}';">Create Token
 </button>
 <button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_send_token', account_address=account_addr) }}';">Send tokens
+</button>
+<button type="button"
         onclick="window.location.href='{{ url_for( 'wallet_available_coins', account_address=account_addr) }}';">Available coins
+</button>
+<button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_add_token', account_address=account_addr) }}';">Add custom token
 </button>
 <br><br><br>
 <button type="button"
