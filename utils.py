@@ -54,3 +54,9 @@ def get_balances(w3_account):
     balances = {"ETH": int(w3.eth.getBalance(w3_account.address)) / 10 ** 18}
 
     return balances
+
+
+def get_coins():
+    with open('data/tokens.json') as db_file:
+        coins = json.loads(db_file.read())
+    return coins

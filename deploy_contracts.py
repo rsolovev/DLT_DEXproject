@@ -19,7 +19,8 @@ def deploy(conractName):
     contract = w3.eth.contract(abi=abi, bytecode=bytecode["object"])
 
     if conractName == "erc20":
-        tx_id = contract.constructor(10000, "Aboba token", "ABB", 18, w3.eth.account.address).transact({'from': w3.eth.account.address})
+        tx_id = contract.constructor(10000, "Aboba token", "ABB", 18, w3.eth.account.address).transact(
+            {'from': w3.eth.account.address})
     else:
         tx_id = contract.constructor().transact({'from': w3.eth.account.address})
 
@@ -36,6 +37,14 @@ def deploy(conractName):
     db[conractName] = tx_receipt['contractAddress']
     with open('data/database.json', 'w') as outfile:
         json.dump(db, outfile)
+
+    if conractName == "erc20":
+        if os.path.isfile('data/tokens.json'):
+            with open('data/tokens.json') as db_file:
+                db = json.loads(db_file.read())
+        db['ABB'] = tx_receipt['contractAddress']
+        with open('data/tokens.json', 'w') as outfile:
+            json.dump(db, outfile)
 
 
 def deploy_all():

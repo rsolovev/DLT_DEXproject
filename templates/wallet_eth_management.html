@@ -26,6 +26,9 @@ You can deposit ETH to your wallet: <br>
 </form>
 <br>
 {{ message }}
+<button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_send_eth', account_address=account_addr) }}';">Send wallet eth to other user
+</button>
 <br><br><br>
 <button type="button"
         onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr) }}';">Back to
