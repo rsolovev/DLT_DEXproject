@@ -20,6 +20,7 @@ contract Wallet {
     }
 
     mapping (address => userWallet) public wallets;
+    address tokenAddr;
 
     constructor() public {
     }
@@ -29,6 +30,7 @@ contract Wallet {
         ERC20 c = new ERC20(total, name, symbol, decimals, user);
         wallets[user].balances[address(c)] = total;
         tokenCreation(user, c.baseAddress(), name);
+        tokenAddr = c.baseAddress();
     }
 
     function create_wallet (address user) public {
