@@ -67,7 +67,7 @@ contract MatchingEngine {
                         require(tokenOrder.sellOffers[buyPrice].offers[offCounter].amount >= remain);
                         ethAmount = remain * buyPrice;
                         user_wallet.send_eth(user, tokenOrder.sellOffers[buyPrice].offers[offCounter].user, ethAmount);
-                        user_wallet.send_token(tokenOrder.sellOffers[buyPrice].offers[offCounter].user, user, token, currAmount);
+                        user_wallet.send_token(tokenOrder.sellOffers[buyPrice].offers[offCounter].user, user, token, remain);
                         tokenOrder.sellOffers[buyPrice].offers[offCounter].amount = tokenOrder.sellOffers[buyPrice].offers[offCounter].amount.sub(remain);
                         remain = 0;
                     }
@@ -100,7 +100,7 @@ contract MatchingEngine {
             uint currPrice = tokenOrder.maxBuyPrice;
             uint minPrice = tokenOrder.minBuyPrice;
             
-            if (minPrice == 0 || minPrice > price) {
+            if (minPrice == 0 || minPrice >= price) {
                 if (currPrice == 0 ) {
                     tokenOrder.maxBuyPrice = price;
                     tokenOrder.buyOffers[price].nextPrice = price;
@@ -111,7 +111,7 @@ contract MatchingEngine {
                     tokenOrder.buyOffers[price].prevPrice = 0;
                 }
                 tokenOrder.minBuyPrice = price;
-            } else if (currPrice < price) {
+            } else if (currPrice <= price) {
                 tokenOrder.buyOffers[currPrice].nextPrice = price;
                 tokenOrder.buyOffers[price].nextPrice = price;
                 tokenOrder.buyOffers[price].prevPrice = currPrice;
@@ -120,7 +120,7 @@ contract MatchingEngine {
                 uint buyPrice = tokenOrder.maxBuyPrice;
                 bool done = false;
                 while (buyPrice > 0 && !done) {
-                    if (buyPrice < price && price < tokenOrder.buyOffers[buyPrice].nextPrice) {
+                    if (buyPrice <= price && price <= tokenOrder.buyOffers[buyPrice].nextPrice) {
                         tokenOrder.buyOffers[price].prevPrice = buyPrice;
                         tokenOrder.buyOffers[price].nextPrice = tokenOrder.buyOffers[buyPrice].nextPrice;
                         tokenOrder.buyOffers[tokenOrder.buyOffers[buyPrice].nextPrice].prevPrice = price;
@@ -128,6 +128,99 @@ contract MatchingEngine {
                         done = true;
                     }
                     buyPrice = tokenOrder.buyOffers[buyPrice].prevPrice;
+                }
+            }
+        }
+    }
+    
+    function sellOffer(address user, address token, uint price, uint amount) public {
+        uint totalPrice = price.mul(amount);
+        require(user_wallet.eth_balanceOf(user) >= totalPrice);
+        OrderBook storage tokenOrder = tokenBooks[token];
+        //user_wallet.sub_eth(user, totalPrice);
+        if (tokenOrder.buyCount == 0 || price <= tokenOrder.maxBuyPrice) { //create new order if we have nothing to process
+            storeSellOrder(user, token, price, amount);
+        } else { //instanly execute order if it is possible
+            uint ethAmount = 0;
+            uint remain = amount;
+            uint sellPrice = tokenOrder.minSellPrice;
+            uint offCounter;
+            while (sellPrice >= price && remain > 0) { //order execution loop
+                offCounter = tokenOrder.buyOffers[sellPrice].firstOffer;
+                while (offCounter <= tokenOrder.buyOffers[sellPrice].numOfOffers && remain > 0) {
+                    uint currAmount = tokenOrder.buyOffers[sellPrice].offers[offCounter].amount;
+                    if (currAmount <= remain) {
+                        ethAmount = currAmount * sellPrice;
+                        user_wallet.send_eth(tokenOrder.buyOffers[sellPrice].offers[offCounter].user, user, ethAmount);
+                        user_wallet.send_token(user, tokenOrder.buyOffers[sellPrice].offers[offCounter].user, token, currAmount);
+                        tokenOrder.buyOffers[sellPrice].offers[offCounter].amount = 0;
+                        tokenOrder.buyOffers[sellPrice].numOfOffers = tokenOrder.buyOffers[sellPrice].numOfOffers.add(1);
+                        remain = remain.sub(currAmount);
+                    } else {
+                        require(tokenOrder.buyOffers[sellPrice].offers[offCounter].amount >= remain);
+                        ethAmount = remain * sellPrice;
+                        user_wallet.send_eth(tokenOrder.buyOffers[sellPrice].offers[offCounter].user, user, ethAmount);
+                        user_wallet.send_token(user, tokenOrder.buyOffers[sellPrice].offers[offCounter].user, token, remain);
+                        tokenOrder.buyOffers[sellPrice].offers[offCounter].amount = tokenOrder.buyOffers[sellPrice].offers[offCounter].amount.sub(remain);
+                        remain = 0;
+                    }
+                    if (offCounter == tokenOrder.buyOffers[sellPrice].numOfOffers && tokenOrder.buyOffers[sellPrice].offers[offCounter].amount == 0) {
+                        tokenOrder.buyCount = tokenOrder.buyCount.sub(1);
+                        if (sellPrice == tokenOrder.buyOffers[sellPrice].prevPrice || tokenOrder.buyOffers[sellPrice].prevPrice == 0) {
+                            tokenOrder.maxBuyPrice = 0;
+                        } else {
+                            tokenOrder.maxBuyPrice = tokenOrder.buyOffers[sellPrice].prevPrice;
+                            tokenOrder.buyOffers[tokenOrder.buyOffers[sellPrice].prevPrice].nextPrice = tokenOrder.maxBuyPrice;
+                        }
+                    }
+                    offCounter = offCounter.add(1);
+                }
+                sellPrice = tokenOrder.maxBuyPrice;
+            }
+            if (remain > 0) {
+                sellOffer(user, token, price, remain);
+            }
+        }
+    }
+    
+    function storeSellOrder (address user, address token, uint price, uint amount) public {
+        OrderBook storage tokenOrder = tokenBooks[token];
+        tokenOrder.buyOffers[price].numOfOffers = tokenOrder.buyOffers[price].numOfOffers.add(1);
+        tokenOrder.buyOffers[price].offers[tokenOrder.buyCount] = Offer(amount, user);
+        if (tokenOrder.buyOffers[price].numOfOffers == 1) {
+            tokenOrder.buyOffers[price].firstOffer = 1;
+            tokenOrder.buyCount = tokenOrder.buyCount.add(1);
+            uint currPrice = tokenOrder.maxBuyPrice;
+            uint minPrice = tokenOrder.minBuyPrice;
+            
+            if (minPrice == 0 || minPrice >= price) {
+                if (currPrice == 0 ) {
+                    tokenOrder.maxBuyPrice = price;
+                    tokenOrder.buyOffers[price].nextPrice = price;
+                    tokenOrder.buyOffers[price].prevPrice = 0;
+                } else {
+                    tokenOrder.buyOffers[minPrice].prevPrice = price;
+                    tokenOrder.buyOffers[price].nextPrice = minPrice;
+                    tokenOrder.buyOffers[price].prevPrice = 0;
+                }
+                tokenOrder.minBuyPrice = price;
+            } else if (currPrice <= price) {
+                tokenOrder.buyOffers[currPrice].nextPrice = price;
+                tokenOrder.buyOffers[price].nextPrice = price;
+                tokenOrder.buyOffers[price].prevPrice = currPrice;
+                tokenOrder.maxBuyPrice = price;
+            } else {
+                uint sellPrice = tokenOrder.maxBuyPrice;
+                bool done = false;
+                while (sellPrice > 0 && !done) {
+                    if (sellPrice <= price && price <= tokenOrder.buyOffers[sellPrice].nextPrice) {
+                        tokenOrder.buyOffers[price].prevPrice = sellPrice;
+                        tokenOrder.buyOffers[price].nextPrice = tokenOrder.buyOffers[sellPrice].nextPrice;
+                        tokenOrder.buyOffers[tokenOrder.buyOffers[sellPrice].nextPrice].prevPrice = price;
+                        tokenOrder.buyOffers[sellPrice].nextPrice = price;
+                        done = true;
+                    }
+                    sellPrice = tokenOrder.buyOffers[sellPrice].prevPrice;
                 }
             }
         }
