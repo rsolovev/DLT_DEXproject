@@ -263,3 +263,50 @@ def wallet_buy_token(account_address, token):
         tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
     return render_template('wallet_buy_token.html', account_addr=account_address, message=message, token=token)
+
+
+@app.route('/<account_address>/wallet/coins_management/view_dom/<token>', methods=['GET'])
+def wallet_view_dom_token(account_address, token):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("MathchingEngine")
+    contract = w3.eth.contract(address=address, abi=abi)
+    message = ''
+    if os.path.isfile('data/tokens.json'):
+        with open('data/tokens.json') as db_file:
+            db = json.loads(db_file.read())
+    token_addr = db[token]
+    buyOrders = contract.functions.getBuyOrders(token_addr).call(
+        {'from': w3_account.address})
+    sellOrders = contract.functions.getSellOrders(token_addr).call(
+        {'from': w3_account.address})
+
+    return render_template('wallet_view_dom_token.html', account_addr=account_address, message=message, token=token,
+                           buyOrders=buyOrders, sellOrders=sellOrders)
+
+
+@app.route('/<account_address>/wallet/coins_management/remove_order/<token>', methods=['GET', 'POST'])
+def wallet_remove_order(account_address, token):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("MathchingEngine")
+    contract = w3.eth.contract(address=address, abi=abi)
+    message = ''
+    if request.method == 'POST':
+        if os.path.isfile('data/tokens.json'):
+            with open('data/tokens.json') as db_file:
+                db = json.loads(db_file.read())
+        token_addr = db[token]
+        sell_order = request.form['sell']
+        if sell_order == "sell":
+            sell_order = True
+        else:
+            sell_order = False
+        price = request.form['pri']
+        tx_hash = contract.functions.removeOrder(w3_account.address, token_addr, sell_order,
+                                              int(price) * 10 ** 18).transact(
+            {'from': w3_account.address})
+        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    return render_template('wallet_remove_order.html', account_addr=account_address, message=message, token=token)

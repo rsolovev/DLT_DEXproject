@@ -5,21 +5,8 @@
     <title>Dashboard</title>
 </head>
 <body>
-Hello, ({{ account_addr }}) <br><br>
-You can buy some {{ token }} tokens: <br>
-<form method="POST">
-    <label>
-        <input name="pri"> Price
-    </label>
-    <br>
-    <label>
-        <input name="amo"> Amount
-    </label>
-    <br>
-    <input type="submit" value="Place Buy order">
-</form>
-<br>
-{{ message }}
+Hello, ({{ account_addr }}). Here is DOM for {{ token }}: <br>
+{{ buyOrders }}<br>{{ sellOrders }}
 <br><br><br>
 <button type="button"
         onclick="window.location.href='{{ url_for( 'wallet_available_coins', account_address=account_addr) }}';">Back Available tokens

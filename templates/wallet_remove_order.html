@@ -6,17 +6,17 @@
 </head>
 <body>
 Hello, ({{ account_addr }}) <br><br>
-You can buy some {{ token }} tokens: <br>
+You can call back your order on {{ token }} tokens: <br>
 <form method="POST">
+    <label>
+        <input name="sell"> Order type
+    </label>
+    <br>
     <label>
         <input name="pri"> Price
     </label>
     <br>
-    <label>
-        <input name="amo"> Amount
-    </label>
-    <br>
-    <input type="submit" value="Place Buy order">
+    <input type="submit" value="Remove order">
 </form>
 <br>
 {{ message }}

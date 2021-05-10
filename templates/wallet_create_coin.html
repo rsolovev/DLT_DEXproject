@@ -29,6 +29,10 @@ Hello, ({{ account_addr }})
 </form>
 <br><br><br>
 <button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_coins_management', account_address=account_addr) }}';">Back to
+    token management
+</button>
+<button type="button"
         onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr) }}';">Back to
     wallet dashboard
 </button>

@@ -59,10 +59,26 @@ Hello, ({{ account_addr }})! List of available coins:
                 Buy
             </button>
         </td>
+        <td>
+            <button type="button"
+                    onclick="window.location.href='{{ url_for( 'wallet_view_dom_token', account_address=account_addr, token=key) }}';">
+                View Buy/Sell Details (DOM)
+            </button>
+        </td>
+        <td>
+            <button type="button"
+                    onclick="window.location.href='{{ url_for( 'wallet_remove_order', account_address=account_addr, token=key) }}';">
+                Remove order on this tokens
+            </button>
+        </td>
     {% endfor %}
     </tr>
 
 </table>
+<button type="button"
+        onclick="window.location.href='{{ url_for( 'wallet_coins_management', account_address=account_addr) }}';">Back to
+    token management
+</button>
 <button type="button"
         onclick="window.location.href='{{ url_for( 'wallet_dashboard', account_address=account_addr) }}';">Wallet
     Dashboard
