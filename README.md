@@ -19,3 +19,12 @@ Matching engine is a smart contract which recieves a OrderBook state and tries t
 DEX Wallet is a smart contract which stores the etherium/tokens of current bids and sends them to users, when Matching engine finds a match. 
 ### ERC20 Token
 An ERC20 token contract, that would be thadable for ETH on our DEX
+
+## Launch Instructions
+1. Install Ganache app for local network, install flask, web3 python packakges
+2. Add some accounts from Ganache to `accounts.json` (example provided)
+3. Add service account (to deploy Wallet and OrderBook contracts) to `service_account` (also from Ganache)
+4. Launch `python3 deploy_contracts.py` to deploy Wallet, OrderBook and sample token contracts, their addresses will be stored in `database.json`
+5. Launch the web interface: `python3 -m flask run` in the repository root directory
+6. Go to 127.0.0.1:5000, there will be a starting page with account selection:  
+  <img width="576" alt="изображение" src="https://user-images.githubusercontent.com/33293285/117690013-083ebb00-b1c3-11eb-8875-4879c30562b7.png">
