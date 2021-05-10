@@ -199,7 +199,7 @@ contract MatchingEngine {
             if (maxPrice == 0 || maxPrice < price) {
                 if (currPrice == 0 ) {
                     tokenOrder.minSellPrice = price;
-                    tokenOrder.sellOffers[price].nextPrice = 0;
+                    tokenOrder.sellOffers[price].nextPrice = price;
                     tokenOrder.sellOffers[price].prevPrice = 0;
                 } else {
                     tokenOrder.sellOffers[maxPrice].nextPrice = price;
@@ -227,5 +227,71 @@ contract MatchingEngine {
                 }
             }
         }
+    }
+    
+    function getBuyOrders (address token) public view returns (uint[] memory, uint[] memory) {
+        OrderBook storage tokenOrder = tokenBooks[token];
+        uint[] memory prices = new uint[](tokenOrder.buyCount);
+        uint[] memory amounts = new uint[](tokenOrder.buyCount);
+        
+        uint buyPrice = tokenOrder.minBuyPrice;
+        
+        uint i = 0;
+        
+        if (tokenOrder.maxBuyPrice > 0) {
+            while (buyPrice <= tokenOrder.maxBuyPrice) {
+                prices[i] = buyPrice;
+                uint priceAmount = 0;
+                uint offCounter = tokenOrder.buyOffers[buyPrice].firstOffer;
+                
+                while (offCounter <= tokenOrder.buyOffers[buyPrice].numOfOffers) {
+                    priceAmount = priceAmount.add(tokenOrder.buyOffers[buyPrice].offers[offCounter].amount);
+                    offCounter = offCounter.add(1);
+                }
+                
+                amounts[i] = priceAmount;
+                
+                if (buyPrice == tokenOrder.buyOffers[buyPrice].nextPrice) {
+                    break;
+                } else {
+                    buyPrice = tokenOrder.buyOffers[buyPrice].nextPrice;
+                }
+                i = i.add(1);
+            }
+        }
+        return(prices, amounts);
+    }
+    
+    function getSellOrders (address token) public view returns (uint[] memory, uint[] memory) {
+        OrderBook storage tokenOrder = tokenBooks[token];
+        uint[] memory prices = new uint[](tokenOrder.sellCount);
+        uint[] memory amounts = new uint[](tokenOrder.sellCount);
+        
+        uint sellPrice = tokenOrder.minSellPrice;
+        
+        uint i = 0;
+        
+        if (tokenOrder.minSellPrice > 0) {
+            while (sellPrice <= tokenOrder.maxSellPrice) {
+                prices[i] = sellPrice;
+                uint priceAmount = 0;
+                uint offCounter = tokenOrder.sellOffers[sellPrice].firstOffer;
+                
+                while (offCounter <= tokenOrder.sellOffers[sellPrice].numOfOffers) {
+                    priceAmount = priceAmount.add(tokenOrder.sellOffers[sellPrice].offers[offCounter].amount);
+                    offCounter = offCounter.add(1);
+                }
+                
+                amounts[i] = priceAmount;
+                
+                if (sellPrice == tokenOrder.sellOffers[sellPrice].nextPrice) {
+                    break;
+                } else {
+                    sellPrice = tokenOrder.sellOffers[sellPrice].nextPrice;
+                }
+                i = i.add(1);
+            }
+        }
+        return(prices, amounts);
     }
 }
