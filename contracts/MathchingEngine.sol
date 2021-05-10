@@ -45,7 +45,7 @@ contract MatchingEngine {
         require(user_wallet.eth_balanceOf(user) >= totalPrice);
         OrderBook storage tokenOrder = tokenBooks[token];
         //user_wallet.sub_eth(user, totalPrice);
-        if (tokenOrder.buyCount == 0 || price <= tokenOrder.maxBuyPrice) { //create new order if we have nothing to process
+        if (tokenOrder.sellCount == 0 || price <= tokenOrder.minSellPrice) { //create new order if we have nothing to process
             storeBuyOrder(user, token, price, amount);
         } else { //instanly execute order if it is possible
             uint ethAmount = 0;
@@ -135,7 +135,7 @@ contract MatchingEngine {
     
     function sellOffer(address user, address token, uint price, uint amount) public {
         uint totalPrice = price.mul(amount);
-        require(user_wallet.eth_balanceOf(user) >= totalPrice);
+        //require(user_wallet.eth_balanceOf(user) >= totalPrice);
         OrderBook storage tokenOrder = tokenBooks[token];
         //user_wallet.sub_eth(user, totalPrice);
         if (tokenOrder.buyCount == 0 || price <= tokenOrder.maxBuyPrice) { //create new order if we have nothing to process
