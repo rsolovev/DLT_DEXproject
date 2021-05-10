@@ -294,4 +294,29 @@ contract MatchingEngine {
         }
         return(prices, amounts);
     }
+    
+    function removeOrder (address user, address token, bool sellorder, uint price) public {
+        OrderBook storage tokenOrder = tokenBooks[token];
+        if (sellorder) {
+            uint i = tokenOrder.sellOffers[price].firstOffer;
+            while (i <= tokenOrder.sellOffers[price].numOfOffers) {
+                if (tokenOrder.sellOffers[price].offers[i].user == user) {
+                    uint ordAmount = tokenOrder.sellOffers[price].offers[i].amount;
+                    tokenOrder.sellOffers[price].offers[i].amount = 0;
+                }
+                
+                i = i.add(1);
+            }
+        } else {
+            uint i = tokenOrder.buyOffers[price].firstOffer;
+            while (i <= tokenOrder.buyOffers[price].numOfOffers) {
+                if (tokenOrder.buyOffers[price].offers[i].user == user) {
+                    uint ordAmount = tokenOrder.buyOffers[price].offers[i].amount;
+                    tokenOrder.buyOffers[price].offers[i].amount = 0;
+                }
+                
+                i = i.add(1);
+            }
+        }
+    }
 }
