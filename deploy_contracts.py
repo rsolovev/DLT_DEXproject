@@ -6,7 +6,7 @@ from os import walk
 
 def deploy(conractName):
     w3 = Web3(HTTPProvider("HTTP://127.0.0.1:7545"))
-
+    global wallet_addr
     with open("contracts/" + conractName + ".abi") as abi_file:
         abi = json.loads(abi_file.read())
     with open("contracts/" + conractName + ".bin") as bin_file:
@@ -18,11 +18,13 @@ def deploy(conractName):
     w3.eth.account = w3.eth.account.privateKeyToAccount(private_key)
     contract = w3.eth.contract(abi=abi, bytecode=bytecode["object"])
 
-    if conractName == "erc20":
+    if conractName == "ERC20":
         tx_id = contract.constructor(10000, "Aboba token", "ABB", 18, w3.eth.account.address).transact(
             {'from': w3.eth.account.address})
-    else:
+    elif conractName == "Wallet":
         tx_id = contract.constructor().transact({'from': w3.eth.account.address})
+    elif conractName == "MathchingEngine":
+        tx_id = contract.constructor(wallet_addr).transact({'from': w3.eth.account.address})
 
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_id)
     if tx_receipt['status'] == 1:
@@ -38,13 +40,16 @@ def deploy(conractName):
     with open('data/database.json', 'w') as outfile:
         json.dump(db, outfile)
 
+    if conractName == "Wallet":
+        wallet_addr = tx_receipt['contractAddress']
 
 
 def deploy_all():
-    contracts = ['erc20', 'wallet']
+    contracts = ['ERC20', 'Wallet', 'MathchingEngine']
     for contract in contracts:
         deploy(contract)
         pass
 
 
+wallet_addr = ''
 deploy_all()

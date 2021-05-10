@@ -47,6 +47,18 @@ Hello, ({{ account_addr }})! List of available coins:
         <td>
             {{ balances[loop.index - 1] }}
         </td>
+        <td>
+            <button type="button"
+                    onclick="window.location.href='{{ url_for( 'wallet_sell_token', account_address=account_addr, token=key) }}';">
+                Sell
+            </button>
+        </td>
+        <td>
+            <button type="button"
+                    onclick="window.location.href='{{ url_for( 'wallet_buy_token', account_address=account_addr, token=key) }}';">
+                Buy
+            </button>
+        </td>
     {% endfor %}
     </tr>
 

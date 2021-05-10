@@ -34,7 +34,7 @@ def create_wallet(account_address):
     w3 = get_w3()
     w3_account = get_w3_account(account_address)
     w3.eth.defaultAccount = w3_account
-    address, abi = get_contract_info("wallet")
+    address, abi = get_contract_info("Wallet")
     contract = w3.eth.contract(address=address, abi=abi)
     tx_hash = contract.functions.create_wallet(w3_account.address).transact({'from': w3_account.address})
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
@@ -51,7 +51,7 @@ def wallet_eth_management(account_address):
     w3 = get_w3()
     w3_account = get_w3_account(account_address)
     w3.eth.defaultAccount = w3_account
-    address, abi = get_contract_info("wallet")
+    address, abi = get_contract_info("Wallet")
     contract = w3.eth.contract(address=address, abi=abi)
     eth_balance = contract.functions.eth_balanceOf(w3_account.address).call({'from': w3_account.address}) / 10 ** 18
     message = ''
@@ -84,7 +84,7 @@ def wallet_send_eth(account_address):
     w3 = get_w3()
     w3_account = get_w3_account(account_address)
     w3.eth.defaultAccount = w3_account
-    address, abi = get_contract_info("wallet")
+    address, abi = get_contract_info("Wallet")
     contract = w3.eth.contract(address=address, abi=abi)
     message = ''
     if request.method == "POST":
@@ -109,7 +109,7 @@ def wallet_create_token(account_address):
     w3 = get_w3()
     w3_account = get_w3_account(account_address)
     w3.eth.defaultAccount = w3_account
-    address, abi = get_contract_info("wallet")
+    address, abi = get_contract_info("Wallet")
     contract = w3.eth.contract(address=address, abi=abi)
     if request.method == "POST":
         total_supply = request.form['tot']
@@ -136,7 +136,7 @@ def wallet_available_coins(account_address):
     w3 = get_w3()
     w3_account = get_w3_account(account_address)
     w3.eth.defaultAccount = w3_account
-    address, abi = get_contract_info("wallet")
+    address, abi = get_contract_info("Wallet")
     contract = w3.eth.contract(address=address, abi=abi)
     coins = get_coins()
     balances = []
@@ -152,7 +152,7 @@ def wallet_add_token(account_address):
     w3 = get_w3()
     w3_account = get_w3_account(account_address)
     w3.eth.defaultAccount = w3_account
-    address, abi = get_contract_info("wallet")
+    address, abi = get_contract_info("Wallet")
     contract = w3.eth.contract(address=address, abi=abi)
     message = ''
     if request.method == "POST":
@@ -184,7 +184,7 @@ def wallet_send_token(account_address):
     w3 = get_w3()
     w3_account = get_w3_account(account_address)
     w3.eth.defaultAccount = w3_account
-    address, abi = get_contract_info("wallet")
+    address, abi = get_contract_info("Wallet")
     contract = w3.eth.contract(address=address, abi=abi)
     message = ''
     if request.method == "POST":
@@ -203,3 +203,49 @@ def wallet_send_token(account_address):
         # except Exception as e:
         #    message = e
     return render_template('wallet_send_token.html', account_addr=account_address, message=message)
+
+
+@app.route('/<account_address>/wallet/coins_management/sell_token/<token>', methods=['GET', 'POST'])
+def wallet_sell_token(account_address, token):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("MathchingEngine")
+    contract = w3.eth.contract(address=address, abi=abi)
+    message = ''
+    if request.method == "POST":
+        price = request.form['pri']
+        amount = request.form['amo']
+        if os.path.isfile('data/tokens.json'):
+            with open('data/tokens.json') as db_file:
+                db = json.loads(db_file.read())
+        token_addr = db[token]
+        tx_hash = contract.functions.sellOffer(w3_account.address, token_addr, int(float(price) * 10 ** 18),
+                                               int(amount)).transact(
+            {'from': w3_account.address})
+        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+
+    return render_template('wallet_sell_token.html', account_addr=account_address, message=message, token=token)
+
+
+@app.route('/<account_address>/wallet/coins_management/buy_token/<token>', methods=['GET', 'POST'])
+def wallet_buy_token(account_address, token):
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("MathchingEngine")
+    contract = w3.eth.contract(address=address, abi=abi)
+    message = ''
+    if request.method == "POST":
+        price = request.form['pri']
+        amount = request.form['amo']
+        if os.path.isfile('data/tokens.json'):
+            with open('data/tokens.json') as db_file:
+                db = json.loads(db_file.read())
+        token_addr = db[token]
+        tx_hash = contract.functions.buyOffer(w3_account.address, token_addr, int(float(price) * 10 ** 18),
+                                              int(amount)).transact(
+            {'from': w3_account.address})
+        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+
+    return render_template('wallet_buy_token.html', account_addr=account_address, message=message, token=token)
