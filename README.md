@@ -6,7 +6,7 @@ Roman Solovev r.solovev@innopolis.ru
 ```
 
 ## Architectural diagram:  
-DLT (1).png![image](https://user-images.githubusercontent.com/33293223/117657699-8b034e00-b1a2-11eb-96f4-804f3101d2a1.png)
+![image](https://user-images.githubusercontent.com/33293223/117657699-8b034e00-b1a2-11eb-96f4-804f3101d2a1.png)
 
 ## API
 API is a Web3 Python app, which will be a proxy between user and DEX smart contracts. User will call functions within this app and the app will send the orders and ethereum to DEX.
