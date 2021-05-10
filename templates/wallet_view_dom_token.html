@@ -3,10 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
 </head>
 <body>
 Hello, ({{ account_addr }}). Here is DOM for {{ token }}: <br>
-{{ buyOrders }}<br>{{ sellOrders }}
+Buys [ETH, amount]: {{ buyOrders }}<br> Sells [ETH, amount]: {{ sellOrders }}
+<div style="padding:5px">
+        <button id="bl1" style="font-size:11px;font-weight:bold;">Load Default Style</button>
+        <button id="bl2" style="font-size:11px;font-weight:bold;">Load Custom Style</button>
+      </div>
+
+      <div id="zc"></div>
+      <script>
+        ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "b55b025e438fa8a98e32482b5f768ff5"];
+        var cdata1 = {
+          "background-color": "#f3f3f3 #d9d9d9",
+          "type": "depth",
+          "options": {
+            "currency": "ETH"
+          },
+          series: [
+		{
+			values: {{ sellOrders }},
+			text: 'Sell'
+		},
+		{
+			values: {{ buyOrders }},
+			text: 'Buy'
+		}
+          ]
+        };
+
+
+
+        var chartupdate = function(c) {
+
+          if (c === 0) {
+            cdata1['series'][0]['values'] = sells;
+            cdata1['series'][1]['values'] = buys;
+            zingchart.exec('zc1', 'setdata', {
+              data: cdata1
+            });
+          } else {
+            cdata2['series'][0]['values'] = sells;
+            cdata2['series'][1]['values'] = buys;
+            zingchart.exec('zc2', 'setdata', {
+              data: cdata2
+            });
+          }
+
+        };
+
+
+        bl1.addEventListener('click', function() {
+          zingchart.render({
+            id: 'zc',
+            data: cdata1
+          });
+        });
+
+        bl2.addEventListener('click', function() {
+          zingchart.render({
+            id: 'zc',
+            data: cdata2
+          });
+        });
+
+
+
+        zingchart.render({
+          id: 'zc',
+          data: cdata1
+        });
+      </script>
 <br><br><br>
 <button type="button"
         onclick="window.location.href='{{ url_for( 'wallet_available_coins', account_address=account_addr) }}';">Back Available tokens

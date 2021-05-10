@@ -281,9 +281,23 @@ def wallet_view_dom_token(account_address, token):
         {'from': w3_account.address})
     sellOrders = contract.functions.getSellOrders(token_addr).call(
         {'from': w3_account.address})
+    if buyOrders == [[], []] and sellOrders == [[], []]:
+        mid_price = 0
+    elif buyOrders == [[], []]:
+        mid_price = sellOrders[0][0]/(10**18)*1.5
+    elif sellOrders == [[], []]:
+        mid_price = buyOrders[0][-1]/(10**18)*1.5
+    else:
+        mid_price = (sellOrders[0][0] + buyOrders[0][-1])/(2*10**18)
+    print(mid_price)
+
+    sellOrders = [[sellOrders[0][i] / 10 ** 18, v] for i, v in enumerate(sellOrders[1])]
+    buyOrders = [[buyOrders[0][i] / 10 ** 18, v] for i, v in enumerate(buyOrders[1])]
+    sellOrders = [[mid_price, 0]] + sellOrders
+    buyOrders = [[mid_price, 0]] + buyOrders
 
     return render_template('wallet_view_dom_token.html', account_addr=account_address, message=message, token=token,
-                           buyOrders=buyOrders, sellOrders=sellOrders)
+                           buyOrders=buyOrders, sellOrders=sellOrders, mid_price=mid_price)
 
 
 @app.route('/<account_address>/wallet/coins_management/remove_order/<token>', methods=['GET', 'POST'])
@@ -306,7 +320,7 @@ def wallet_remove_order(account_address, token):
             sell_order = False
         price = request.form['pri']
         tx_hash = contract.functions.removeOrder(w3_account.address, token_addr, sell_order,
-                                              int(price) * 10 ** 18).transact(
+                                                 int(price) * 10 ** 18).transact(
             {'from': w3_account.address})
         tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
     return render_template('wallet_remove_order.html', account_addr=account_address, message=message, token=token)
