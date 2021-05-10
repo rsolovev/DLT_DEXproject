@@ -53,3 +53,6 @@ def deploy_all():
 
 wallet_addr = ''
 deploy_all()
+db = {}
+with open('data/tokens.json', 'w') as outfile:
+    json.dump(db, outfile)

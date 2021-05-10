@@ -6,7 +6,7 @@
 </head>
 <body>
 Hello, ({{ account_addr }})
-<br><br>
+<br>{{ message }}<br>
 <button type="button"
         onclick="window.location.href='{{ url_for( 'wallet_create_token', account_address=account_addr) }}';">Create Token
 </button>

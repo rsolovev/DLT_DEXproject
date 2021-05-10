@@ -53,28 +53,32 @@ def wallet_eth_management(account_address):
     w3.eth.defaultAccount = w3_account
     address, abi = get_contract_info("Wallet")
     contract = w3.eth.contract(address=address, abi=abi)
-    eth_balance = contract.functions.eth_balanceOf(w3_account.address).call({'from': w3_account.address}) / 10 ** 18
-    message = ''
-    # deposit/withdraw part
-    if request.method == "POST":
-        if request.form['dep'] != '':
-            eth = request.form['dep']
-        elif request.form['with'] != '':
-            eth = request.form['with']
-        else:
-            eth = 0
-        value = w3.toWei(float(eth), 'ether')
-        if request.form['dep'] != '':
-            tx_hash = contract.functions.deposit_eth(w3_account.address).transact(
-                {'from': w3_account.address, 'value': value})
-            tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-        elif request.form['with'] != '':
-            try:
-                tx_hash = contract.functions.withdraw(w3_account.address, value).transact(
-                    {'from': w3_account.address})
+    try:
+        eth_balance = contract.functions.eth_balanceOf(w3_account.address).call({'from': w3_account.address}) / 10 ** 18
+        message = ''
+        # deposit/withdraw part
+        if request.method == "POST":
+            if request.form['dep'] != '':
+                eth = request.form['dep']
+            elif request.form['with'] != '':
+                eth = request.form['with']
+            else:
+                eth = 0
+            value = w3.toWei(float(eth), 'ether')
+            if request.form['dep'] != '':
+                tx_hash = contract.functions.deposit_eth(w3_account.address).transact(
+                    {'from': w3_account.address, 'value': value})
                 tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-            except Exception as e:
-                message = e
+            elif request.form['with'] != '':
+                try:
+                    tx_hash = contract.functions.withdraw(w3_account.address, value).transact(
+                        {'from': w3_account.address})
+                    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+                except Exception as e:
+                    message = e
+    except Exception as e:
+        eth_balance = 0
+        message = e
     return render_template('wallet_eth_management.html', balance=eth_balance, account_addr=account_address,
                            message=message)
 
@@ -101,7 +105,17 @@ def wallet_send_eth(account_address):
 
 @app.route('/<account_address>/wallet/coins_management', methods=['GET', 'POST'])
 def wallet_coins_management(account_address):
-    return render_template('wallet_coins_management.html', account_addr=account_address)
+    w3 = get_w3()
+    w3_account = get_w3_account(account_address)
+    w3.eth.defaultAccount = w3_account
+    address, abi = get_contract_info("Wallet")
+    contract = w3.eth.contract(address=address, abi=abi)
+    message = ''
+    try:
+        eth_balance = contract.functions.eth_balanceOf(w3_account.address).call({'from': w3_account.address}) / 10 ** 18
+    except Exception as e:
+        message = e
+    return render_template('wallet_coins_management.html', account_addr=account_address, message=message)
 
 
 @app.route('/<account_address>/wallet/coins_management/create_token', methods=['GET', 'POST'])
