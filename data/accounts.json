@@ -1,22 +1,22 @@
 {
   "Igor": {
-    "address": "0xc25F9650C3547fd66B3f0665f68C2a9E8b22DF23",
-    "private_key": "05f59c7711f9c07d754563837ee95378323ea89aad5e23b72c216f8a22e2e409"
+    "address": "0x336aFADE935ba11407da4cc4A48c581c7B615B0B",
+    "private_key": "8c9b30333bcda352b07a6da1b5389b3b0a05cab1ffe816d6dfa11772d20004b2"
   },
   "Roma": {
-    "address": "0x76AF5D41470eDE5Eb417c6ea846AaE6814d0b156",
-    "private_key": "bb2525d020d88030502a9fd1207bf7f4faba4e762d100c49e04d7ff6854412e6"
+    "address": "0xE61CbA90bD4dea2cBd802d981c56D5992Ed96C2D",
+    "private_key": "cac7429fb744ffebb6052594969707314b3f75dfb3a6e262a9ff5c6d78f86a30"
   },
   "Mariia": {
-    "address": "0x6a2416f4D96cE501CebB093E2779b8B6D4a5EAF9",
-    "private_key": "43ccf94b1d9acc68b8b21d45e88c5a16489dde8a2584f4f4872f619b49fbbe80"
+    "address": "0x1C5c41127EC1175feA488ACe59E8b6fc2043EB37",
+    "private_key": "f76c09176892c09aa3f24c3613321dfcb476a544985b88dd6e2b4ad023b43fc4"
   },
   "Leonid": {
-    "address": "0xc7D768AecCAc834FfbCFcba326A6db2eFC291F39",
-    "private_key": "ec27ee5a063e08c553ebd1872bc64bc13c40dd74938191d0c1278fbcb5e7ed8f"
+    "address": "0x46f3fb363B1cfab09B2F5Ee0a4C12fe33EDB01d8",
+    "private_key": "4b9016303dbc30ca007f3dc1728a45b30e2981dd46a32c06c970cbdbcf4f835d"
   },
   "Hamza": {
-    "address": "0x935D87b2f8FefbB28df4a4Cab045450e67510a62",
-    "private_key": "85ea16f99379fae663dd2eaf7db1d7e7610ebca8e3493eaacf76ce64661e6a6e"
+    "address": "0x5c918A618301AC66C4Fade99E7B97069b48Ef59f",
+    "private_key": "5057ca084f2bd0e9cce20d25041b02f22cf6fd0d0f9efd7940e21ae6b2de858e"
   }
 }
